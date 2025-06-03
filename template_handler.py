@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 
 class TemplateHandler:
     def __init__(self):
+        # Match both {PLACEHOLDER} and [Placeholder] formats
         self.placeholder_pattern = re.compile(r'\{([A-Z_]+)\}')
+        self.bracket_pattern = re.compile(r'\[([A-Za-z\s]+)\]')
         
     def personalize_template(self, template_file, contact_data):
         """Personalize HTML template with contact data"""
@@ -21,8 +23,9 @@ class TemplateHandler:
             with open(template_file, 'r', encoding='utf-8') as file:
                 template_content = file.read()
                 
-            # Replace placeholders
+            # Replace placeholders - both formats
             personalized_content = self._replace_placeholders(template_content, contact_data)
+            personalized_content = self._replace_bracket_placeholders(personalized_content, contact_data)
             
             # Validate HTML
             self._validate_html(personalized_content)
@@ -57,6 +60,22 @@ class TemplateHandler:
                 return match.group(0)  # Keep original placeholder
                 
         return self.placeholder_pattern.sub(replace_match, template)
+        
+    def _replace_bracket_placeholders(self, template, data):
+        """Replace [First Name] style placeholders"""
+        def replace_match(match):
+            placeholder = match.group(1).strip()
+            
+            # Map bracket placeholders to data fields
+            if placeholder.lower() == 'first name':
+                return data.get('FIRST_NAME', 'there')
+            elif placeholder.lower() == 'job title':
+                return data.get('JOB_TITLE', 'Professional')
+            else:
+                logger.warning(f"Placeholder [{placeholder}] not found in data")
+                return match.group(0)  # Keep original placeholder
+                
+        return self.bracket_pattern.sub(replace_match, template)
         
     def _validate_html(self, html_content):
         """Basic HTML validation"""
