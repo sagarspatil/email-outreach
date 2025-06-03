@@ -165,8 +165,9 @@ cython_debug/
 subscriber_lists/
 email_logs/
 config.json
-*.csv
 *.xlsx
+email_automation.log
+*.csv.backup_*
 
 # API keys and secrets
 secrets.py
