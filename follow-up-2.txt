@@ -1,6 +1,6 @@
-Subject: Your voice matters in this conversation, [First Name]
+Subject: Your voice matters in this conversation, {FIRST_NAME}
 
-Hi [First Name],
+Hi {FIRST_NAME},
 
 I wanted to reach out again because I believe your perspective could really enrich the conversations I'm having with other brilliant women navigating similar paths.
 

@@ -1,6 +1,6 @@
 Subject: Final note — in case it's been on your mind
 
-Hi [First Name],
+Hi {FIRST_NAME},
 
 Just dropping one last note in case this conversation has been tugging at you but timing hasn't quite lined up.
 

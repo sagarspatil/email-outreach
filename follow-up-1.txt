@@ -1,6 +1,6 @@
-Subject: Just circling back, [First Name]
+Subject: Just circling back, {FIRST_NAME}
 
-Hi [First Name],
+Hi {FIRST_NAME},
 
 Just wanted to gently follow up in case my earlier message got buried — I know how full life can be.
 

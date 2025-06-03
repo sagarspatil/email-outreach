@@ -41,19 +41,13 @@ class TemplateHandler:
         def replace_match(match):
             placeholder = match.group(1)
             
-            # Map common placeholders
+            # Only support FIRST_NAME and JOB_TITLE placeholders
             if placeholder == 'FIRST_NAME':
                 return data.get('FIRST_NAME', 'there')
             elif placeholder == 'JOB_TITLE':
                 return data.get('JOB_TITLE', 'Professional')
-            elif placeholder == 'COMPANY':
-                return data.get('COMPANY', data.get('COMPANY_WEBSITE', 'your company'))
-            elif placeholder == 'LOCATION':
-                return data.get('LOCATION', '')
-            elif placeholder in data:
-                return data[placeholder]
             else:
-                logger.warning(f"Placeholder {{{placeholder}}} not found in data")
+                logger.warning(f"Unsupported placeholder {{{placeholder}}} - only {{FIRST_NAME}} and {{JOB_TITLE}} are allowed")
                 return match.group(0)  # Keep original placeholder
                 
         return self.placeholder_pattern.sub(replace_match, template)

@@ -11,6 +11,12 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
+from rich.console import Console
+from rich.table import Table
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
+from rich.panel import Panel
+from rich import print as rprint
+
 from config import Config
 from csv_handler import CSVHandler
 from email_sender import EmailSender
@@ -29,6 +35,7 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+console = Console()
 
 
 class EmailAutomation:
@@ -47,7 +54,7 @@ class EmailAutomation:
         
     def run(self, dry_run=False, limit=None, check_replies_only=False):
         """Main execution flow"""
-        logger.info("Starting email automation...")
+        console.print(Panel.fit("[bold blue]Email Automation Starting[/bold blue]", border_style="blue"))
         
         if check_replies_only:
             self._check_replies()
@@ -56,19 +63,42 @@ class EmailAutomation:
         contacts = self.csv_handler.load_contacts()
         sent_count = 0
         
-        for contact in contacts:
-            if limit and sent_count >= limit:
-                logger.info(f"Reached send limit of {limit} emails")
-                break
-                
-            try:
-                if self._process_contact(contact, dry_run):
-                    sent_count += 1
-            except Exception as e:
-                logger.error(f"Error processing contact {contact.get('EMAIL')}: {str(e)}")
-                
+        # Create progress bar
+        total_contacts = min(len(contacts), limit) if limit else len(contacts)
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            console=console
+        ) as progress:
+            task = progress.add_task("[green]Processing contacts...", total=total_contacts)
+            
+            for contact in contacts:
+                if limit and sent_count >= limit:
+                    console.print(f"[yellow]Reached send limit of {limit} emails[/yellow]")
+                    break
+                    
+                try:
+                    if self._process_contact(contact, dry_run):
+                        sent_count += 1
+                    progress.update(task, advance=1)
+                except Exception as e:
+                    console.print(f"[red]Error processing contact {contact.get('EMAIL')}: {str(e)}[/red]")
+                    
         self.csv_handler.save_contacts(contacts)
-        logger.info(f"Email automation completed. Sent {sent_count} emails.")
+        
+        # Summary table
+        table = Table(title="Email Automation Summary")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="magenta")
+        table.add_row("Total Contacts", str(len(contacts)))
+        table.add_row("Emails Sent", str(sent_count))
+        table.add_row("Status", "[green]Completed[/green]")
+        
+        console.print("\n")
+        console.print(table)
         
     def _process_contact(self, contact, dry_run=False):
         """Process a single contact"""
@@ -78,13 +108,13 @@ class EmailAutomation:
             return False
             
         if contact.get('reply_received') == 'True':
-            logger.info(f"Skipping {email} - reply already received")
+            console.print(f"[dim]Skipping {email} - reply already received[/dim]")
             return False
             
         # Check for replies first
         if self.reply_checker.has_replied(email):
             contact['reply_received'] = 'True'
-            logger.info(f"Reply detected from {email}")
+            console.print(f"[green]Reply detected from {email}[/green]")
             return False
             
         # Determine which email to send
@@ -104,11 +134,13 @@ class EmailAutomation:
         
         # Send or simulate
         if dry_run:
-            logger.info(f"[DRY RUN] Would send {email_type} to {email}")
-            print(f"\nTo: {email}")
-            print(f"Type: {email_type}")
-            print(f"Subject: {self._get_subject(email_type)}")
-            print("---")
+            console.print(f"[yellow][DRY RUN][/yellow] Would send {email_type} to [bold]{email}[/bold]")
+            dry_run_panel = Panel(
+                f"To: {email}\nType: {email_type}\nSubject: {self._get_subject(email_type)}",
+                title="[yellow]Dry Run Email[/yellow]",
+                border_style="yellow"
+            )
+            console.print(dry_run_panel)
         else:
             success = self.email_sender.send_email(
                 email,
@@ -117,7 +149,7 @@ class EmailAutomation:
             )
             if success:
                 self._update_tracking(contact, email_type)
-                logger.info(f"Sent {email_type} to {email}")
+                console.print(f"[green]✓[/green] Sent {email_type} to [bold]{email}[/bold]")
                 return True
                 
         return False
@@ -184,20 +216,35 @@ class EmailAutomation:
         
     def _check_replies(self):
         """Check replies for all contacts"""
-        logger.info("Checking for replies...")
+        console.print(Panel.fit("[bold cyan]Checking for Replies[/bold cyan]", border_style="cyan"))
         contacts = self.csv_handler.load_contacts()
         reply_count = 0
         
-        for contact in contacts:
-            email = contact.get('EMAIL')
-            if email and contact.get('reply_received') != 'True':
-                if self.reply_checker.has_replied(email):
-                    contact['reply_received'] = 'True'
-                    reply_count += 1
-                    logger.info(f"Reply detected from {email}")
-                    
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console
+        ) as progress:
+            task = progress.add_task("[cyan]Checking emails...", total=None)
+            
+            for contact in contacts:
+                email = contact.get('EMAIL')
+                if email and contact.get('reply_received') != 'True':
+                    if self.reply_checker.has_replied(email):
+                        contact['reply_received'] = 'True'
+                        reply_count += 1
+                        console.print(f"[green]✓ Reply detected from {email}[/green]")
+                        
         self.csv_handler.save_contacts(contacts)
-        logger.info(f"Reply check completed. Found {reply_count} new replies.")
+        
+        # Summary
+        summary_panel = Panel(
+            f"Total new replies found: [bold green]{reply_count}[/bold green]",
+            title="Reply Check Summary",
+            border_style="green"
+        )
+        console.print("\n")
+        console.print(summary_panel)
 
 
 def main():
@@ -219,6 +266,7 @@ def main():
             check_replies_only=args.check_replies
         )
     except Exception as e:
+        console.print(f"[bold red]Fatal error: {str(e)}[/bold red]")
         logger.error(f"Fatal error: {str(e)}")
         sys.exit(1)
 
