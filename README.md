@@ -9,7 +9,8 @@ A simple Python script to automate email outreach and follow-up campaigns using 
 - **CSV-based Contact Management**: Track all email activity in your CSV file
 - **Template Personalization**: Use placeholders to customize emails for each recipient
 - **Configurable Time Intervals**: Set custom delays between follow-ups
-- **Command Line Interface**: Simple CLI with dry-run and limit options
+- **Rich CLI Interface**: Beautiful progress display with detailed status updates
+- **Command Line Options**: Dry-run, limit, and reply-check modes
 
 ## Quick Start
 
@@ -56,19 +57,17 @@ Example:
 "Software Engineer","Senior Developer","john.doe@example.com","https://linkedin.com/in/johndoe","https://example.com","San Francisco, CA","","John"
 ```
 
-### 4. Create Email Templates
+### 4. Email Templates
 
-You need these HTML template files:
-- `first-email.html` - Initial outreach email (already exists)
-- `follow-up-1.html` - First follow-up
-- `follow-up-2.html` - Second follow-up
-- `follow-up-3.html` - Third follow-up
+The following HTML email templates are included:
+- `first-email.html` - Initial outreach email
+- `follow-up-1.html` - First follow-up (sent after 3 days)
+- `follow-up-2.html` - Second follow-up (sent after 5 days)
+- `follow-up-3.html` - Third follow-up (sent after 7 days)
 
-Templates can use these placeholders:
+Templates use these placeholders:
 - `{FIRST_NAME}` - Recipient's first name
 - `{JOB_TITLE}` - Recipient's job title
-- `{COMPANY}` - Company name (extracted from website)
-- `{LOCATION}` - Recipient's location
 
 ### 5. Run the Script
 
@@ -89,9 +88,13 @@ python email_automation.py
 ## How It Works
 
 1. **Initial Email**: Sent to contacts who haven't been emailed yet
-2. **Follow-ups**: Sent based on configured intervals (default: 3 days each)
+2. **Follow-ups**: Sent based on configured intervals:
+   - Follow-up 1: After 3 days
+   - Follow-up 2: After 5 days from follow-up 1
+   - Follow-up 3: After 7 days from follow-up 2
 3. **Reply Detection**: Checks IMAP for replies before sending follow-ups
 4. **Tracking**: Updates CSV with sent dates and reply status
+5. **Rich Progress Display**: Shows detailed progress with contact names, email types, and status
 
 ## CSV Tracking Columns
 
@@ -114,13 +117,14 @@ GMAIL_APP_PASSWORD=your-app-password
 
 # Follow-up intervals (days)
 FOLLOWUP1_DAYS=3
-FOLLOWUP2_DAYS=3
-FOLLOWUP3_DAYS=3
+FOLLOWUP2_DAYS=5
+FOLLOWUP3_DAYS=7
 
 # Send limits
 DAILY_SEND_LIMIT=50
 
-# Send time window (24-hour format)
+# Send time window (24-hour format) - Optional
+# If not set, emails can be sent at any time
 SEND_START_HOUR=9
 SEND_END_HOUR=17
 ```
@@ -128,8 +132,8 @@ SEND_END_HOUR=17
 ## Logging
 
 All activity is logged to:
-- Console output
-- `email_automation.log` file
+- Console output with rich formatting
+- `email_automation.log` file for detailed debugging
 
 ## Security Notes
 
@@ -145,9 +149,10 @@ All activity is logged to:
 - Check that "Less secure app access" is not needed (App Passwords bypass this)
 
 ### No Emails Sending
-- Check if you're within the configured send time window
+- If using send time window, check if you're within the configured hours
 - Verify email addresses are valid
 - Check the log file for errors
+- Ensure follow-up intervals have passed (3, 5, or 7 days)
 
 ### Templates Not Found
 - Ensure all 4 template files exist in the project directory
