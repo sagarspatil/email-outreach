@@ -7,6 +7,7 @@ Main entry point for automated email outreach and follow-up campaigns
 import argparse
 import logging
 import sys
+import time
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -64,6 +65,10 @@ class EmailAutomation:
             try:
                 if self._process_contact(contact, dry_run):
                     sent_count += 1
+                    # Add delay between emails (only in production, not dry run)
+                    if not dry_run and sent_count < len(contacts):
+                        logger.info(f"Waiting {self.config.email_delay_seconds} seconds before next email...")
+                        time.sleep(self.config.email_delay_seconds)
             except Exception as e:
                 logger.error(f"Error processing contact {contact.get('EMAIL')}: {str(e)}")
                 

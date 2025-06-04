@@ -28,6 +28,9 @@ class Config:
         # Send limits
         self.daily_send_limit = int(os.getenv('DAILY_SEND_LIMIT', '50'))
         
+        # Email sending delays - disabled for testing
+        self.email_delay_seconds = 0  # No delays in testing
+        
         # Send time window - disabled for testing
         self.send_start_hour = 0
         self.send_end_hour = 24

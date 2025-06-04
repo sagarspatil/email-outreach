@@ -15,13 +15,16 @@ class Config:
         # CSV file
         self.csv_file = os.getenv('CSV_FILE', os.path.join('..', 'data', 'final.csv'))
         
-        # Time intervals (in days)
-        self.followup1_days = int(os.getenv('FOLLOWUP1_DAYS', '3'))
-        self.followup2_days = int(os.getenv('FOLLOWUP2_DAYS', '3'))
-        self.followup3_days = int(os.getenv('FOLLOWUP3_DAYS', '3'))
+        # Time intervals (in days from initial email)
+        self.followup1_days = int(os.getenv('FOLLOWUP1_DAYS', '3'))  # 3 days from initial
+        self.followup2_days = int(os.getenv('FOLLOWUP2_DAYS', '5'))  # 5 days from initial
+        self.followup3_days = int(os.getenv('FOLLOWUP3_DAYS', '7'))  # 7 days from initial
         
         # Send limits
-        self.daily_send_limit = int(os.getenv('DAILY_SEND_LIMIT', '50'))
+        self.daily_send_limit = int(os.getenv('DAILY_SEND_LIMIT', '500'))
+        
+        # Email sending delays (in seconds)
+        self.email_delay_seconds = int(os.getenv('EMAIL_DELAY_SECONDS', '60'))  # 1 minute between emails
         
         # Send time window
         self.send_start_hour = int(os.getenv('SEND_START_HOUR', '9'))
