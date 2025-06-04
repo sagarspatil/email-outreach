@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Just circling back</title>
+    <title>Did my invite get lost</title>
     <style>
         body {
             font-family: 'Georgia', serif;
@@ -41,13 +41,20 @@
             margin: 15px 0;
             padding: 12px 20px;
             background-color: #D2691E;
-            color: white;
+            color: #ffffff !important;
             text-decoration: none;
             border-radius: 5px;
             font-weight: bold;
         }
         .cta-link:hover {
             background-color: #A0522D;
+            color: #ffffff !important;
+        }
+        .cta-link:visited {
+            color: #ffffff !important;
+        }
+        .cta-link:active {
+            color: #ffffff !important;
         }
         .signature {
             margin-top: 30px;
@@ -71,6 +78,10 @@
             margin-top: 10px;
             color: #666;
         }
+        .signature a {
+            color: #D2691E;
+            text-decoration: none;
+        }
         .emoji-pointer {
             font-size: 18px;
             margin-right: 5px;
@@ -80,38 +91,37 @@
 <body>
     <div class="email-container">
         <div class="greeting">
-            Hi [First Name],
+            Hi {{FirstName}},
         </div>
 
         <div class="content">
-            Just wanted to gently follow up in case my earlier message got buried — I know how full life can be.
-        </div>
-
-        <div class="content">
-            I'm still holding space for a real, heart-centered chat about what it's really like being a high-performing woman in today's world — the unspoken pressure, the inner juggling, and the longing for a softer, more sustainable way.
+            Inbox traffic is wild, so I'm resurfacing my note in case it slipped past. I'm gathering honest stories from women in tech about stress and balance.
         </div>
 
         <div class="cta-section">
-            If you're open to sharing your story, I'd love to hear it. You can pick a time that works best for you here:
+            If sharing yours feels right, here's that link again:
         </div>
 
         <div style="text-align: center; margin: 20px 0;">
-            <!-- removed emoji pointer -->
-            <a href="https://calendly.com/advayaholistic-9quk/30min?month=2025-05" class="cta-link">Schedule Our Conversation</a>
+            <a href="https://calendly.com/advayaholistic-9quk/30min?month=2025-05" class="cta-link">Pick a time</a>
+        </div>
+
+        <div class="content">
+            No pressure-just making sure you saw it.
+        </div>
+
+        <div class="content">
+            Wishing you a lighter week.
         </div>
 
         <div class="signature">
-            <div style="margin-bottom: 15px;">Warmly,</div>
-            
             <div class="name">Shilpa Patil</div>
-            <div class="title">Founder | Holistic Wellness Specialist | Yoga and Ayurveda Health Counselor</div>
+            <div class="title">Founder, Advaya Wellness | Yoga & Ayurveda Counselor</div>
             
             <div style="margin: 15px 0;">
-                <a href="https://www.advayawellness.com" class="website">www.advayawellness.com</a>
-            </div>
-            
-            <div class="social">
-                Instagram | LinkedIn
+                <a href="https://www.advayawellness.com" class="website">advayawellness.com</a> | 
+                <a href="https://www.instagram.com/advaya.wellness/">Instagram</a> | 
+                <a href="https://www.linkedin.com/in/helloshilpapatil/">LinkedIn</a>
             </div>
         </div>
     </div>

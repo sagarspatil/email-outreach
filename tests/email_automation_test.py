@@ -181,35 +181,48 @@ class EmailAutomation:
         if not email_type:
             return False
             
-        # Personalize template
-        template_file = self._get_template_file(email_type)
-        # Look for template in templates/ directory
-        template_path = os.path.join('templates', template_file)
-        if not os.path.exists(template_path):
-            logger.error(f"Template file not found: {template_path}")
+        # Personalize templates
+        html_file, text_file = self._get_template_files(email_type)
+        # Look for templates in templates/ directory
+        html_path = os.path.join('templates', html_file)
+        text_path = os.path.join('templates', text_file)
+        
+        if not os.path.exists(html_path):
+            logger.error(f"HTML template file not found: {html_path}")
+            return False
+        if not os.path.exists(text_path):
+            logger.error(f"Text template file not found: {text_path}")
             return False
             
         personalized_html = self.template_handler.personalize_template(
-            template_path, contact
+            html_path, contact
         )
+        personalized_text = self.template_handler.personalize_template(
+            text_path, contact
+        )
+        
+        # Personalize subject line
+        subject_template = self._get_subject(email_type)
+        personalized_subject = self._replace_double_brace_placeholders(subject_template, contact)
         
         # Send or simulate
         if dry_run:
             if console:
                 console.print(f"\n[yellow][DRY RUN][/yellow] Would send [bold]{email_type}[/bold] to [cyan]{email}[/cyan]")
-                console.print(f"Subject: [green]{self._get_subject(email_type)}[/green]")
+                console.print(f"Subject: [green]{personalized_subject}[/green]")
                 console.print("[dim]---[/dim]")
             else:
                 logger.info(f"[DRY RUN] Would send {email_type} to {email}")
                 print(f"\nTo: {email}")
                 print(f"Type: {email_type}")
-                print(f"Subject: {self._get_subject(email_type)}")
+                print(f"Subject: {personalized_subject}")
                 print("---")
         else:
             success = self.email_sender.send_email(
                 email,
-                self._get_subject(email_type),
-                personalized_html
+                personalized_subject,
+                personalized_html,
+                personalized_text
             )
             if success:
                 self._update_tracking(contact, email_type)
@@ -253,25 +266,44 @@ class EmailAutomation:
                 
         return None
         
-    def _get_template_file(self, email_type):
-        """Get template file path based on email type"""
+    def _get_template_files(self, email_type):
+        """Get both HTML and text template file paths for email type"""
         template_map = {
-            'initial': 'first-email.html',
-            'followup1': 'follow-up-1.html',
-            'followup2': 'follow-up-2.html',
-            'followup3': 'follow-up-3.html'
+            'initial': 'first-email',
+            'followup1': 'follow-up-1',
+            'followup2': 'follow-up-2',
+            'followup3': 'follow-up-3'
         }
-        return template_map.get(email_type, '')
+        template_name = template_map.get(email_type, '')
+        if not template_name:
+            return '', ''
+        return f'{template_name}.html', f'{template_name}.txt'
         
     def _get_subject(self, email_type):
         """Get email subject based on type"""
         subjects = {
-            'initial': 'Connect for a Heart-Centered Conversation',
-            'followup1': 'Just circling back',
-            'followup2': 'Your voice matters in this conversation',
-            'followup3': 'Final note — in case it\'s been on your mind'
+            'initial': 'Quick question from another woman in tech, {{FirstName}}',
+            'followup1': 'Did my invite get lost, {{FirstName}}?',
+            'followup2': 'Your experience could guide other women, {{FirstName}}',
+            'followup3': 'Last call before I wrap, {{FirstName}}'
         }
         return subjects.get(email_type, 'Follow-up')
+        
+    def _replace_double_brace_placeholders(self, template, data):
+        """Replace {{FirstName}} style placeholders for subjects"""
+        import re
+        double_brace_pattern = re.compile(r'\{\{([A-Za-z]+)\}\}')
+        
+        def replace_match(match):
+            placeholder = match.group(1).strip()
+            if placeholder.lower() == 'firstname':
+                return data.get('FIRST_NAME', 'there')
+            elif placeholder.lower() == 'jobtitle':
+                return data.get('JOB_TITLE', 'Professional')
+            else:
+                return match.group(0)  # Keep original placeholder
+                
+        return double_brace_pattern.sub(replace_match, template)
         
     def _update_tracking(self, contact, email_type):
         """Update tracking information after sending email - WITH TIMESTAMP FOR TEST"""

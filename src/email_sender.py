@@ -19,8 +19,8 @@ class EmailSender:
         self.smtp_server = "smtp.gmail.com"
         self.smtp_port = 587
         
-    def send_email(self, recipient_email, subject, html_content, retry_count=3):
-        """Send email with retry logic"""
+    def send_email(self, recipient_email, subject, html_content, text_content=None, retry_count=3):
+        """Send email with both HTML and text versions"""
         for attempt in range(retry_count):
             try:
                 # Create message
@@ -28,6 +28,11 @@ class EmailSender:
                 message['Subject'] = subject
                 message['From'] = self.sender_email
                 message['To'] = recipient_email
+                
+                # Attach text content first (fallback)
+                if text_content:
+                    text_part = MIMEText(text_content, 'plain')
+                    message.attach(text_part)
                 
                 # Attach HTML content
                 html_part = MIMEText(html_content, 'html')
