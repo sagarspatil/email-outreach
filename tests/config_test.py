@@ -17,7 +17,7 @@ class Config:
         self.gmail_app_password = os.getenv('GMAIL_APP_PASSWORD', '')
         
         # CSV file
-        self.csv_file = os.getenv('CSV_FILE', 'test.csv')
+        self.csv_file = os.getenv('CSV_FILE', os.path.join('..', 'data', 'test.csv'))
         
         # Time intervals - USING MINUTES FOR TESTING
         # These will be treated as minutes instead of days

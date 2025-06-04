@@ -10,6 +10,10 @@ from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
 from config_test import Config  # Using test config
 from csv_handler import CSVHandler
 from email_sender import EmailSender
@@ -178,12 +182,14 @@ class EmailAutomation:
             
         # Personalize template
         template_file = self._get_template_file(email_type)
-        if not os.path.exists(template_file):
-            logger.error(f"Template file not found: {template_file}")
+        # Look for template in templates/ directory
+        template_path = os.path.join('templates', template_file)
+        if not os.path.exists(template_path):
+            logger.error(f"Template file not found: {template_path}")
             return False
             
         personalized_html = self.template_handler.personalize_template(
-            template_file, contact
+            template_path, contact
         )
         
         # Send or simulate
