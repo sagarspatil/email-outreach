@@ -13,7 +13,7 @@ class Config:
         self.gmail_app_password = os.getenv('GMAIL_APP_PASSWORD', '')
         
         # CSV file
-        self.csv_file = os.getenv('CSV_FILE', 'final.csv')
+        self.csv_file = os.getenv('CSV_FILE', os.path.join('..', 'data', 'final.csv'))
         
         # Time intervals (in days)
         self.followup1_days = int(os.getenv('FOLLOWUP1_DAYS', '3'))
