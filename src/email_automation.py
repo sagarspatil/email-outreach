@@ -132,22 +132,19 @@ class EmailAutomation:
             return 'initial'
             
         initial_date = datetime.strptime(contact['initial_sent_date'], '%Y-%m-%d')
+        days_since_initial = (today - initial_date).days
         
+        # All follow-ups are calculated from the initial email date
         if not contact.get('followup1_sent_date'):
-            days_passed = (today - initial_date).days
-            if days_passed >= self.config.followup1_days:
+            if days_since_initial >= self.config.followup1_days:
                 return 'followup1'
                 
         elif not contact.get('followup2_sent_date'):
-            followup1_date = datetime.strptime(contact['followup1_sent_date'], '%Y-%m-%d')
-            days_passed = (today - followup1_date).days
-            if days_passed >= self.config.followup2_days:
+            if days_since_initial >= self.config.followup2_days:
                 return 'followup2'
                 
         elif not contact.get('followup3_sent_date'):
-            followup2_date = datetime.strptime(contact['followup2_sent_date'], '%Y-%m-%d')
-            days_passed = (today - followup2_date).days
-            if days_passed >= self.config.followup3_days:
+            if days_since_initial >= self.config.followup3_days:
                 return 'followup3'
                 
         return None
