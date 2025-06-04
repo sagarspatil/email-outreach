@@ -12,13 +12,15 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
+# Load environment variables from parent directory FIRST
+# Use override=True to replace any existing environment variables
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'), override=True)
+
 from config import Config
 from csv_handler import CSVHandler
 from email_sender import EmailSender
 from reply_checker import ReplyChecker
 from template_handler import TemplateHandler
-
-load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
