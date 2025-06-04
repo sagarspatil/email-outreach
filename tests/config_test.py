@@ -17,13 +17,13 @@ class Config:
         self.gmail_app_password = os.getenv('GMAIL_APP_PASSWORD', '')
         
         # CSV file
-        self.csv_file = os.getenv('CSV_FILE', os.path.join('..', 'data', 'test.csv'))
+        self.csv_file = os.getenv('CSV_FILE', 'data/test.csv')
         
         # Time intervals - USING MINUTES FOR TESTING
         # These will be treated as minutes instead of days
-        self.followup1_days = 1  # 1 minute
-        self.followup2_days = 1  # 1 minute 
-        self.followup3_days = 1  # 1 minute
+        self.followup1_days = 0  # 0 minutes (immediate)
+        self.followup2_days = 0  # 0 minutes (immediate) 
+        self.followup3_days = 0  # 0 minutes (immediate)
         
         # Send limits
         self.daily_send_limit = int(os.getenv('DAILY_SEND_LIMIT', '50'))

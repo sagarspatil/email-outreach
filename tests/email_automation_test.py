@@ -61,10 +61,11 @@ class EmailAutomation:
         self.config = config
         
         # Fix CSV column name mapping for test.csv
-        self.csv_handler = CSVHandler(config.csv_file)
+        csv_path = config.csv_file if os.path.exists(config.csv_file) else 'data/test.csv'
+        self.csv_handler = CSVHandler(csv_path)
         # Override the required columns for test.csv
         self.csv_handler.required_columns = [
-            'DESCRIPTION', 'JOB TITLE', 'EMAIL', 'LINKEDIN_URL',
+            'DESCRIPTION', 'JOB_TITLE', 'EMAIL', 'LINKEDIN_URL',
             'COMPANY_WEBSITE', 'LOCATION', 'PHONE_NUMBER', 'FIRST_NAME'
         ]
         
@@ -229,28 +230,25 @@ class EmailAutomation:
             
         # Parse as datetime for minute-based calculations
         initial_date = datetime.strptime(contact['initial_sent_date'], '%Y-%m-%d %H:%M:%S')
+        minutes_since_initial = (now - initial_date).total_seconds() / 60
         
+        # All follow-ups calculated from initial email (using minutes instead of days for testing)
         if not contact.get('followup1_sent_date'):
-            minutes_passed = (now - initial_date).total_seconds() / 60
-            if minutes_passed >= self.config.followup1_days:  # Using "days" as minutes
+            if minutes_since_initial >= self.config.followup1_days:  # Using "days" as minutes
                 if console:
-                    console.print(f"[dim]Follow-up 1 due: {minutes_passed:.1f} minutes since initial[/dim]")
+                    console.print(f"[dim]Follow-up 1 due: {minutes_since_initial:.1f} minutes since initial[/dim]")
                 return 'followup1'
                 
         elif not contact.get('followup2_sent_date'):
-            followup1_date = datetime.strptime(contact['followup1_sent_date'], '%Y-%m-%d %H:%M:%S')
-            minutes_passed = (now - followup1_date).total_seconds() / 60
-            if minutes_passed >= self.config.followup2_days:  # Using "days" as minutes
+            if minutes_since_initial >= self.config.followup2_days:  # Using "days" as minutes
                 if console:
-                    console.print(f"[dim]Follow-up 2 due: {minutes_passed:.1f} minutes since follow-up 1[/dim]")
+                    console.print(f"[dim]Follow-up 2 due: {minutes_since_initial:.1f} minutes since initial[/dim]")
                 return 'followup2'
                 
         elif not contact.get('followup3_sent_date'):
-            followup2_date = datetime.strptime(contact['followup2_sent_date'], '%Y-%m-%d %H:%M:%S')
-            minutes_passed = (now - followup2_date).total_seconds() / 60
-            if minutes_passed >= self.config.followup3_days:  # Using "days" as minutes
+            if minutes_since_initial >= self.config.followup3_days:  # Using "days" as minutes
                 if console:
-                    console.print(f"[dim]Follow-up 3 due: {minutes_passed:.1f} minutes since follow-up 2[/dim]")
+                    console.print(f"[dim]Follow-up 3 due: {minutes_since_initial:.1f} minutes since initial[/dim]")
                 return 'followup3'
                 
         return None
