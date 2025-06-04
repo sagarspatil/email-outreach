@@ -15,20 +15,24 @@ class TemplateHandler:
         # Match both {PLACEHOLDER} and [Placeholder] formats
         self.placeholder_pattern = re.compile(r'\{([A-Z_]+)\}')
         self.bracket_pattern = re.compile(r'\[([A-Za-z\s]+)\]')
+        # Match {{FirstName}} double brace format
+        self.double_brace_pattern = re.compile(r'\{\{([A-Za-z]+)\}\}')
         
     def personalize_template(self, template_file, contact_data):
-        """Personalize HTML template with contact data"""
+        """Personalize template with contact data (works for both HTML and text)"""
         try:
             # Read template file
             with open(template_file, 'r', encoding='utf-8') as file:
                 template_content = file.read()
                 
-            # Replace placeholders - both formats
+            # Replace placeholders - all formats
             personalized_content = self._replace_placeholders(template_content, contact_data)
             personalized_content = self._replace_bracket_placeholders(personalized_content, contact_data)
+            personalized_content = self._replace_double_brace_placeholders(personalized_content, contact_data)
             
-            # Validate HTML
-            self._validate_html(personalized_content)
+            # Validate HTML only if it's an HTML file
+            if template_file.endswith('.html'):
+                self._validate_html(personalized_content)
             
             return personalized_content
             
@@ -76,6 +80,22 @@ class TemplateHandler:
                 return match.group(0)  # Keep original placeholder
                 
         return self.bracket_pattern.sub(replace_match, template)
+        
+    def _replace_double_brace_placeholders(self, template, data):
+        """Replace {{FirstName}} style placeholders"""
+        def replace_match(match):
+            placeholder = match.group(1).strip()
+            
+            # Map double brace placeholders to data fields
+            if placeholder.lower() == 'firstname':
+                return data.get('FIRST_NAME', 'there')
+            elif placeholder.lower() == 'jobtitle':
+                return data.get('JOB_TITLE', 'Professional')
+            else:
+                logger.warning(f"Placeholder {{{{{placeholder}}}}} not found in data")
+                return match.group(0)  # Keep original placeholder
+                
+        return self.double_brace_pattern.sub(replace_match, template)
         
     def _validate_html(self, html_content):
         """Basic HTML validation"""
