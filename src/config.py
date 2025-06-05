@@ -14,7 +14,10 @@ class Config:
         
         # CSV file
         csv_filename = os.getenv('CSV_FILE', 'final.csv')
-        self.csv_file = os.path.join('..', 'data', csv_filename)
+        # Get the directory of this config file
+        src_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(src_dir)
+        self.csv_file = os.path.join(project_root, 'data', csv_filename)
         
         # Time intervals (in days from initial email)
         self.followup1_days = int(os.getenv('FOLLOWUP1_DAYS', '3'))  # 3 days from initial
