@@ -186,7 +186,7 @@ class EmailAutomation:
         """Get email subject based on type"""
         subjects = {
             'initial': 'Quick question from another woman in tech, {{FirstName}}',
-            'followup1': 'Did my invite get lost, {{FirstName}}?',
+            'followup1': 'Coffee on me, {{FirstName}} — did you see this?',
             'followup2': 'Your experience could guide other women, {{FirstName}}',
             'followup3': 'Last call before I wrap, {{FirstName}}'
         }
